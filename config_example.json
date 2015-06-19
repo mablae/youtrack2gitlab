@@ -1,0 +1,16 @@
+{
+    "youtrack" :  {
+	"host" : "http://youtrack_host",
+ 	"user" : "your_user",
+	"password": "pass",
+        "project" : "string"
+    },
+
+    "gitlab" : {
+        "host" : "http://gitlab_host",
+        "username" : "",
+        "password" : "",
+        "project_id" : 0
+    }
+
+}
