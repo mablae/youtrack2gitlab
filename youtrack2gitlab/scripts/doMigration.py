@@ -32,59 +32,42 @@ def getComments(s, issue_id):
 		comments.append(gl_note)
 	return comments
 
-def getGitlabIdByYoutrackUser(username):
-	map = { 
-		'loe' : 2,
-		'mbl' : 4,
-		'mkr' : 11,
-		'mma' : 6,
-		'root' : 1,
-		'sja' : 3,
-		'Julian_Knauer' : 10
-	}
-	return map[username]
+def getGitlabUserIdByYoutrackUser(username):
+	return youtrack2gitlab.config["user_mapping"][username]
 
-@click.command('y2g_import')
+@click.command('y2g_migrate')
 def cli():
-	"""Echo a value `N` number of times"""
-
-	git = gitlab.Gitlab(youtrack2gitlab.gitlab.get('host'))
-	git.login('mbl', '45zf!')
+	git = gitlab.Gitlab(youtrack2gitlab.config["gitlab"]["host"])
+	git.login(youtrack2gitlab.config["gitlab"]["username"], )
 
 	s = requests.session()
 	payload = {
-	'login' : youtrack2gitlab.youtrack.get('user'),
-		'password' : youtrack2gitlab.youtrack.get('password')
+		'login' : youtrack2gitlab.config["youtrack"]["user"],
+		'password' : youtrack2gitlab.config["gitlab"]["password"]
 	}
-	r = s.post(youtrack2gitlab.youtrack.get('host')+'/rest/user/login', data=payload)
+	r = s.post(youtrack2gitlab.config["youtrack"]["host"]+'/rest/user/login', data=payload)
 	   
-	#click.echo(r.text)
-	
+
 	issues = getIssues(s)
 	issue_count = 0
 	for issue in issues:
 		if ((issue['State'] != 'Behoben') & (issue['State'] != 'Verifiziert')):
-			issue_count += 1
-			
+
 			gl_issue = {}
-			gl_issue['id'] =  youtrack2gitlab.gitlab.get('project_id')
+			gl_issue['id'] =  youtrack2gitlab.config["gitlab"]["project_id"]
 			gl_issue['title'] = issue['summary']
 			if 'description' in issue:
 				gl_issue['description'] = issue['description']
 			else:
 				gl_issue['description'] = ""
 	  
-			git.setsudo(getGitlabIdByYoutrackUser(issue['reporterName']))
+			git.setsudo(getGitlabUserIdByYoutrackUser(issue['reporterName']))
 			new_issue = git.createissue(gl_issue['id'], gl_issue['title'], description = gl_issue['description'])
 			
-			comments = getComments(s, 'SHOP-'+str(issue['numberInProject']))
+			comments = getComments(s, youtrack2gitlab.config["youtrack"]["project"] + '-' + str(issue['numberInProject']))
 			for comment in comments:
-				git.setsudo(getGitlabIdByYoutrackUser(comment['author']))
+				git.setsudo(getGitlabUserIdByYoutrackUser(comment['author']))
 				git.createissuewallnote(gl_issue['id'], new_issue['id'], comment['body'])
-			
-			#print("...")	
-			#print(new_issue)	
-			#new_issue['description'] = gl_issue['description'] 
-			#git.editissue(**new_issue)
 
-			print("Counting "+ str(issue_count) + " issues...")
+			issue_count += 1
+	print("Migrated "+ str(issue_count) + " issues...")

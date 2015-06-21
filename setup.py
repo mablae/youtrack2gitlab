@@ -28,7 +28,7 @@ setup(name='youtrack2gitlab',
       },
       entry_points="""
       [console_scripts]
-      y2g_import=youtrack2gitlab.scripts.cli:cli
+      y2g_migrate=youtrack2gitlab.scripts.doMigration:cli
       y2g_projects=youtrack2gitlab.scripts.getProjects:cli
       y2g_users=youtrack2gitlab.scripts.getUsers:cli
       """

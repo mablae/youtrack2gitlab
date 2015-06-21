@@ -1,16 +1,17 @@
 {
     "youtrack" :  {
-	"host" : "http://youtrack_host",
- 	"user" : "your_user",
-	"password": "pass",
-        "project" : "string"
+	  "host" : "http://youtrack_host",
+ 	  "user" : "your_user",
+	  "password": "pass",
+      "project" : "string"
     },
-
     "gitlab" : {
-        "host" : "http://gitlab_host",
-        "username" : "",
-        "password" : "",
-        "project_id" : 0
-    }
-
+      "host" : "http://gitlab_host",
+      "username" : "",
+      "password" : "",
+      "project_id" : 0
+    },
+    "user_mapping" : {
+	  "youtrack_user" : 1
+	}
 }
